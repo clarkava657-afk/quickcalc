@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger — Age, BMI, Percentage &amp; Word Count Calculators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ledger:#eef3ea;
+    --ledger-line:#c3d4bc;
+    --ledger-line-soft:#dbe6d5;
+    --paper:#f7faf5;
+    --ink:#1f2a22;
+    --ink-soft:#5c6b5f;
+    --red:#a8402f;
+    --red-deep:#7f2f22;
+    --white:#fffef9;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ledger);
+    background-image:repeating-linear-gradient(var(--ledger) 0 41px, var(--ledger-line-soft) 41px 42px);
+    color:var(--ink);
+    font-family:'Work Sans',sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--red); color:var(--white);}
+  a{color:inherit;}
+
+  header{
+    padding:2.4rem 1.5rem 1.6rem;
+    max-width:760px;
+    margin:0 auto;
+    border-bottom:3px double var(--ink);
+  }
+  .kicker{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.03em;
+    color:var(--red-deep);
+    margin:0 0 .7rem;
+    font-weight:600;
+  }
+  h1{
+    font-family:'Work Sans',sans-serif;
+    font-weight:700;
+    font-size:clamp(1.9rem, 6vw, 2.5rem);
+    line-height:1.15;
+    margin:0 0 .7rem;
+    max-width:18ch;
+  }
+  header p.lede{
+    font-size:1rem;
+    color:var(--ink-soft);
+    max-width:46ch;
+    margin:0;
+  }
+
+  .tabbar{
+    max-width:760px;
+    margin:0 auto;
+    padding:1.2rem 1.5rem 0;
+    display:flex;
+    gap:.5rem;
+    flex-wrap:wrap;
+  }
+  .tab{
+    background:var(--white);
+    border:1px solid var(--ink);
+    border-bottom-width:3px;
+    padding:.55rem .95rem;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:.8rem;
+    cursor:pointer;
+    color:var(--ink-soft);
+  }
+  .tab.active{
+    color:var(--ink);
+    background:var(--white);
+    border-color:var(--red-deep);
+    color:var(--red-deep);
+  }
+
+  main{
+    max-width:760px;
+    margin:0 auto;
+    padding:1.4rem 1.5rem 4rem;
+  }
+
+  .sheet{
+    background:var(--white);
+    border:1px solid var(--ink);
+    padding:1.7rem 1.5rem 1.9rem;
+  }
+
+  .field-note{
+    font-size:.88rem;
+    color:var(--ink-soft);
+    margin:0 0 1.4rem;
+    padding-bottom:1.1rem;
+    border-bottom:1px solid var(--ledger-line);
+  }
+
+  label{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.02em;
+    color:var(--ink-soft);
+    margin:0 0 .35rem;
+  }
+  .field{margin-bottom:1.1rem;}
+  .field-row{display:flex; gap:.7rem;}
+  .field-row .field{flex:1;}
+
+  input[type=text], input[type=number], input[type=date], select, textarea{
+    width:100%;
+    font-family:'Work Sans',sans-serif;
+    font-size:.98rem;
+    padding:.6rem .65rem;
+    border:1px solid #b7c2b3;
+    background:var(--ledger);
+    color:var(--ink);
+  }
+  textarea{min-height:9rem; resize:vertical; font-family:'Work Sans',sans-serif;}
+  input:focus, select:focus, textarea:focus{outline:2px solid var(--red-deep); outline-offset:1px;}
+
+  .unit-toggle{display:flex; gap:.4rem; margin-bottom:1.1rem;}
+  .unit-btn{
+    flex:1;
+    padding:.5rem .6rem;
+    border:1px solid #b7c2b3;
+    background:var(--paper);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.78rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+    text-align:center;
+  }
+  .unit-btn.active{background:var(--ink); color:var(--white); border-color:var(--ink);}
+
+  .mode-toggle{display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.2rem;}
+  .mode-btn{
+    padding:.5rem .75rem;
+    border:1px solid #b7c2b3;
+    background:var(--paper);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.74rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .mode-btn.active{background:var(--ink); color:var(--white); border-color:var(--ink);}
+
+  button.btn-primary{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:.85rem;
+    padding:.7rem 1.2rem;
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:var(--white);
+    cursor:pointer;
+    letter-spacing:.02em;
+  }
+  button.btn-ghost{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:.8rem;
+    padding:.6rem 1rem;
+    border:1px solid #b7c2b3;
+    background:transparent;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  button.btn-ghost:hover{border-color:var(--ink);}
+
+  /* result ledger line */
+  .entry{
+    margin-top:1.8rem;
+    border-top:3px double var(--ink);
+    padding-top:1.3rem;
+    display:none;
+  }
+  .entry.show{display:block;}
+  .entry-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:.9rem;
+  }
+  .entry-head span{font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-soft);}
+  .entry-title{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.78rem; color:var(--ink);}
+  .entry-figure{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:2.5rem;
+    color:var(--red-deep);
+    line-height:1;
+  }
+  .entry-figure small{font-size:1rem; font-weight:500; color:var(--ink-soft); font-family:'Work Sans',sans-serif;}
+  .entry-label{font-size:.82rem; color:var(--ink-soft); margin-top:.4rem;}
+  .entry-remark{
+    margin-top:1rem;
+    padding-top:1rem;
+    border-top:1px solid var(--ledger-line);
+    font-size:.92rem;
+  }
+  .entry-stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.7rem 1.2rem;
+    margin-top:1rem;
+  }
+  .stat{font-size:.85rem;}
+  .stat b{display:block; font-family:'IBM Plex Mono',monospace; font-size:1.1rem; color:var(--ink);}
+
+  footer{
+    max-width:760px;
+    margin:0 auto;
+    padding:0 1.5rem 3rem;
+    font-size:.8rem;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="kicker">QUICK CALCULATORS</p>
+  <h1>The numbers you look up every day, worked out in one tap.</h1>
+  <p class="lede">Age, BMI, percentages, and word counts — no signup, no ads getting in the way, just the answer.</p>
+</header>
+
+<div class="tabbar">
+  <div class="tab active" id="tab-age" onclick="switchTab('age')">Age</div>
+  <div class="tab" id="tab-bmi" onclick="switchTab('bmi')">BMI</div>
+  <div class="tab" id="tab-pct" onclick="switchTab('pct')">Percentage</div>
+  <div class="tab" id="tab-words" onclick="switchTab('words')">Word Count</div>
+</div>
+
+<main>
+
+  <!-- AGE -->
+  <div class="sheet" id="panel-age">
+    <p class="field-note">Enter a date of birth. We'll work out the exact age as of today (or a date you choose).</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="age-dob">DATE OF BIRTH</label>
+        <input type="date" id="age-dob">
+      </div>
+      <div class="field">
+        <label for="age-asof">AS OF (OPTIONAL)</label>
+        <input type="date" id="age-asof">
+      </div>
+    </div>
+    <button class="btn-primary" onclick="calcAge()">Calculate age</button>
+
+    <div class="entry" id="age-entry">
+      <div class="entry-head">
+        <span class="entry-title">RESULT</span>
+        <span id="age-context"></span>
+      </div>
+      <div class="entry-figure" id="age-figure">— <small>years old</small></div>
+      <div class="entry-label" id="age-label"></div>
+      <div class="entry-stats">
+        <div class="stat"><b id="age-days">—</b>total days lived</div>
+        <div class="stat"><b id="age-nextbday">—</b>days to next birthday</div>
+      </div>
+      <button class="btn-ghost" style="margin-top:1.2rem;" onclick="shareAgeImage()">Save / share result</button>
+    </div>
+  </div>
+
+  <!-- BMI -->
+  <div class="sheet hidden" id="panel-bmi">
+    <p class="field-note">Enter your height and weight. BMI is a general screening measure — it doesn't account for muscle mass, frame, or age, so treat it as a starting point, not a diagnosis.</p>
+
+    <div class="unit-toggle">
+      <div class="unit-btn active" id="bmi-unit-metric" onclick="setBmiUnit('metric')">Metric (cm / kg)</div>
+      <div class="unit-btn" id="bmi-unit-imperial" onclick="setBmiUnit('imperial')">Imperial (ft-in / lb)</div>
+    </div>
+
+    <div id="bmi-fields-metric">
+      <div class="field-row">
+        <div class="field">
+          <label for="bmi-height-cm">HEIGHT (CM)</label>
+          <input type="number" id="bmi-height-cm" placeholder="e.g. 170">
+        </div>
+        <div class="field">
+          <label for="bmi-weight-kg">WEIGHT (KG)</label>
+          <input type="number" id="bmi-weight-kg" placeholder="e.g. 65">
+        </div>
+      </div>
+    </div>
+
+    <div id="bmi-fields-imperial" class="hidden">
+      <div class="field-row">
+        <div class="field">
+          <label for="bmi-height-ft">HEIGHT (FT)</label>
+          <input type="number" id="bmi-height-ft" placeholder="e.g. 5">
+        </div>
+        <div class="field">
+          <label for="bmi-height-in">+ IN</label>
+          <input type="number" id="bmi-height-in" placeholder="e.g. 7">
+        </div>
+        <div class="field">
+          <label for="bmi-weight-lb">WEIGHT (LB)</label>
+          <input type="number" id="bmi-weight-lb" placeholder="e.g. 143">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="calcBmi()">Calculate BMI</button>
+
+    <div class="entry" id="bmi-entry">
+      <div class="entry-head">
+        <span class="entry-title">RESULT</span>
+        <span id="bmi-context"></span>
+      </div>
+      <div class="entry-figure" id="bmi-figure">—</div>
+      <div class="entry-label">Body Mass Index</div>
+      <div class="entry-remark" id="bmi-remark"></div>
+      <button class="btn-ghost" style="margin-top:1.2rem;" onclick="shareBmiImage()">Save / share result</button>
+    </div>
+  </div>
+
+  <!-- PERCENTAGE -->
+  <div class="sheet hidden" id="panel-pct">
+    <p class="field-note">Pick what you're trying to work out, then fill in the two numbers.</p>
+
+    <div class="mode-toggle">
+      <div class="mode-btn active" id="pct-mode-of" onclick="setPctMode('of')">X% of Y</div>
+      <div class="mode-btn" id="pct-mode-what" onclick="setPctMode('what')">X is what % of Y</div>
+      <div class="mode-btn" id="pct-mode-change" onclick="setPctMode('change')">% change from X to Y</div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label id="pct-label-x">PERCENTAGE (%)</label>
+        <input type="number" id="pct-x" placeholder="e.g. 20">
+      </div>
+      <div class="field">
+        <label id="pct-label-y">OF THIS NUMBER</label>
+        <input type="number" id="pct-y" placeholder="e.g. 250">
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="calcPct()">Calculate</button>
+
+    <div class="entry" id="pct-entry">
+      <div class="entry-head">
+        <span class="entry-title">RESULT</span>
+        <span id="pct-context"></span>
+      </div>
+      <div class="entry-figure" id="pct-figure">—</div>
+      <div class="entry-label" id="pct-label-out"></div>
+      <button class="btn-ghost" style="margin-top:1.2rem;" onclick="sharePctImage()">Save / share result</button>
+    </div>
+  </div>
+
+  <!-- WORD COUNT -->
+  <div class="sheet hidden" id="panel-words">
+    <p class="field-note">Paste or type text below — counts update as you calculate.</p>
+    <div class="field">
+      <textarea id="words-input" placeholder="Paste your text here…" oninput="calcWords()"></textarea>
+    </div>
+
+    <div class="entry show" id="words-entry">
+      <div class="entry-head">
+        <span class="entry-title">RESULT</span>
+        <span id="words-context">LIVE COUNT</span>
+      </div>
+      <div class="entry-figure" id="words-figure">0 <small>words</small></div>
+      <div class="entry-label">Word count</div>
+      <div class="entry-stats">
+        <div class="stat"><b id="words-chars">0</b>characters (with spaces)</div>
+        <div class="stat"><b id="words-chars-ns">0</b>characters (no spaces)</div>
+        <div class="stat"><b id="words-sentences">0</b>sentences</div>
+        <div class="stat"><b id="words-readtime">0 sec</b>reading time</div>
+      </div>
+      <button class="btn-ghost" style="margin-top:1.2rem;" onclick="shareWordsImage()">Save / share result</button>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Figures are general estimates for everyday use — for medical, legal, or official purposes, always confirm with a qualified source.
+</footer>
+
+<script>
+  // ---------- TABS ----------
+  function switchTab(name){
+    ['age','bmi','pct','words'].forEach(n=>{
+      document.getElementById('tab-'+n).classList.toggle('active', n===name);
+      document.getElementById('panel-'+n).classList.toggle('hidden', n!==name);
+    });
+  }
+
+  function showEntry(id){
+    const el = document.getElementById(id);
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+  }
+
+  // ---------- AGE ----------
+  function calcAge(){
+    const dobVal = document.getElementById('age-dob').value;
+    if(!dobVal) return;
+    const dob = new Date(dobVal + 'T00:00:00');
+    const asofVal = document.getElementById('age-asof').value;
+    const asof = asofVal ? new Date(asofVal + 'T00:00:00') : new Date();
+
+    let years = asof.getFullYear() - dob.getFullYear();
+    let months = asof.getMonth() - dob.getMonth();
+    let days = asof.getDate() - dob.getDate();
+    if(days < 0){
+      months--;
+      const prevMonth = new Date(asof.getFullYear(), asof.getMonth(), 0);
+      days += prevMonth.getDate();
+    }
+    if(months < 0){
+      years--;
+      months += 12;
+    }
+
+    const msPerDay = 1000*60*60*24;
+    const totalDays = Math.floor((asof - dob) / msPerDay);
+
+    let nextBday = new Date(asof.getFullYear(), dob.getMonth(), dob.getDate());
+    if(nextBday < asof) nextBday = new Date(asof.getFullYear()+1, dob.getMonth(), dob.getDate());
+    const daysToNext = Math.ceil((nextBday - asof) / msPerDay);
+
+    document.getElementById('age-figure').innerHTML = years + ' <small>years old</small>';
+    document.getElementById('age-label').textContent = months + ' months, ' + days + ' days';
+    document.getElementById('age-context').textContent = asofVal ? 'AS OF ' + asofVal : 'AS OF TODAY';
+    document.getElementById('age-days').textContent = totalDays.toLocaleString();
+    document.getElementById('age-nextbday').textContent = daysToNext;
+
+    showEntry('age-entry');
+  }
+
+  // ---------- BMI ----------
+  let bmiUnit = 'metric';
+  function setBmiUnit(u){
+    bmiUnit = u;
+    document.getElementById('bmi-unit-metric').classList.toggle('active', u==='metric');
+    document.getElementById('bmi-unit-imperial').classList.toggle('active', u==='imperial');
+    document.getElementById('bmi-fields-metric').classList.toggle('hidden', u!=='metric');
+    document.getElementById('bmi-fields-imperial').classList.toggle('hidden', u!=='imperial');
+  }
+
+  function calcBmi(){
+    let heightM, weightKg;
+    if(bmiUnit === 'metric'){
+      const cm = parseFloat(document.getElementById('bmi-height-cm').value);
+      const kg = parseFloat(document.getElementById('bmi-weight-kg').value);
+      if(!cm || !kg) return;
+      heightM = cm / 100;
+      weightKg = kg;
+    } else {
+      const ft = parseFloat(document.getElementById('bmi-height-ft').value) || 0;
+      const inch = parseFloat(document.getElementById('bmi-height-in').value) || 0;
+      const lb = parseFloat(document.getElementById('bmi-weight-lb').value);
+      if((!ft && !inch) || !lb) return;
+      const totalInches = ft*12 + inch;
+      heightM = totalInches * 0.0254;
+      weightKg = lb * 0.453592;
+    }
+
+    const bmi = weightKg / (heightM*heightM);
+    document.getElementById('bmi-figure').textContent = bmi.toFixed(1);
+    document.getElementById('bmi-context').textContent = bmiUnit.toUpperCase();
+
+    const remarkEl = document.getElementById('bmi-remark');
+    let category;
+    if(bmi < 18.5){
+      category = 'Underweight';
+      remarkEl.innerHTML = '<b style="color:var(--red-deep);">Underweight range.</b> Below the typical healthy range for most adults.';
+    } else if(bmi < 25){
+      category = 'Normal weight';
+      remarkEl.innerHTML = '<b style="color:#3f6b4c;">Normal weight range.</b> Within the typical healthy range for most adults.';
+    } else if(bmi < 30){
+      category = 'Overweight';
+      remarkEl.innerHTML = '<b style="color:var(--red-deep);">Overweight range.</b> Above the typical healthy range for most adults.';
+    } else {
+      category = 'Obese';
+      remarkEl.innerHTML = '<b style="color:var(--red-deep);">Obese range.</b> Well above the typical healthy range for most adults.';
+    }
+    bmiCategoryGlobal = category;
+
+    showEntry('bmi-entry');
+  }
+  let bmiCategoryGlobal = '';
+
+  // ---------- PERCENTAGE ----------
+  let pctMode = 'of';
+  function setPctMode(m){
+    pctMode = m;
+    ['of','what','change'].forEach(mode=>{
+      document.getElementById('pct-mode-'+mode).classList.toggle('active', mode===m);
+    });
+    const labelX = document.getElementById('pct-label-x');
+    const labelY = document.getElementById('pct-label-y');
+    const xInput = document.getElementById('pct-x');
+    const yInput = document.getElementById('pct-y');
+    if(m === 'of'){
+      labelX.textContent = 'PERCENTAGE (%)';
+      labelY.textContent = 'OF THIS NUMBER';
+      xInput.placeholder = 'e.g. 20';
+      yInput.placeholder = 'e.g. 250';
+    } else if(m === 'what'){
+      labelX.textContent = 'THIS NUMBER';
+      labelY.textContent = 'IS WHAT % OF THIS';
+      xInput.placeholder = 'e.g. 45';
+      yInput.placeholder = 'e.g. 180';
+    } else {
+      labelX.textContent = 'FROM (ORIGINAL)';
+      labelY.textContent = 'TO (NEW VALUE)';
+      xInput.placeholder = 'e.g. 80';
+      yInput.placeholder = 'e.g. 100';
+    }
+  }
+
+  function calcPct(){
+    const x = parseFloat(document.getElementById('pct-x').value);
+    const y = parseFloat(document.getElementById('pct-y').value);
+    if(isNaN(x) || isNaN(y)) return;
+
+    let result, label;
+    if(pctMode === 'of'){
+      result = (x/100) * y;
+      label = x + '% of ' + y;
+      document.getElementById('pct-figure').textContent = trimNum(result);
+    } else if(pctMode === 'what'){
+      result = (x/y) * 100;
+      label = x + ' as a percentage of ' + y;
+      document.getElementById('pct-figure').innerHTML = trimNum(result) + ' <small>%</small>';
+    } else {
+      result = ((y-x)/Math.abs(x)) * 100;
+      label = 'Change from ' + x + ' to ' + y;
+      const sign = result >= 0 ? '+' : '';
+      document.getElementById('pct-figure').innerHTML = sign + trimNum(result) + ' <small>%</small>';
+    }
+
+    document.getElementById('pct-label-out').textContent = label;
+    document.getElementById('pct-context').textContent = pctMode === 'of' ? 'X% OF Y' : (pctMode === 'what' ? 'X IS WHAT % OF Y' : '% CHANGE');
+    showEntry('pct-entry');
+  }
+
+  function trimNum(n){
+    return Math.round(n * 100) / 100;
+  }
+
+  // ---------- WORD COUNT ----------
+  function calcWords(){
+    const text = document.getElementById('words-input').value;
+    const trimmed = text.trim();
+    const words = trimmed === '' ? 0 : trimmed.split(/\s+/).length;
+    const chars = text.length;
+    const charsNoSpace = text.replace(/\s/g, '').length;
+    const sentences = trimmed === '' ? 0 : (trimmed.match(/[.!?]+(\s|$)/g) || []).length || (trimmed ? 1 : 0);
+    const readSeconds = Math.max(1, Math.round((words / 200) * 60));
+    const readLabel = readSeconds < 60 ? readSeconds + ' sec' : Math.round(readSeconds/60) + ' min';
+
+    document.getElementById('words-figure').innerHTML = words + ' <small>words</small>';
+    document.getElementById('words-chars').textContent = chars.toLocaleString();
+    document.getElementById('words-chars-ns').textContent = charsNoSpace.toLocaleString();
+    document.getElementById('words-sentences').textContent = sentences;
+    document.getElementById('words-readtime').textContent = readLabel;
+  }
+
+  // ---------- SHARE AS IMAGE ----------
+  function roundRect(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  function wrapTextCentered(ctx, text, cx, y, maxWidth, lineHeight){
+    ctx.textAlign = 'center';
+    const words = text.split(' ');
+    let line = '', curY = y;
+    for(let n=0;n<words.length;n++){
+      const testLine = line + words[n] + ' ';
+      if(ctx.measureText(testLine).width > maxWidth && n>0){
+        ctx.fillText(line, cx, curY);
+        line = words[n] + ' ';
+        curY += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, cx, curY);
+  }
+
+  function buildLedgerImage(opts, callback){
+    const W = 640, H = 820;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#eef3ea';
+    ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle = '#dbe6d5';
+    ctx.lineWidth = 1;
+    for(let ly=90; ly<H; ly+=41){
+      ctx.beginPath(); ctx.moveTo(0,ly); ctx.lineTo(W,ly); ctx.stroke();
+    }
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#7f2f22';
+    ctx.font = '600 13px "IBM Plex Mono", monospace';
+    ctx.fillText('QUICK CALCULATORS', 40, 50);
+
+    ctx.fillStyle = '#1f2a22';
+    ctx.font = '700 26px "Work Sans", sans-serif';
+    ctx.fillText(opts.heading, 40, 82);
+
+    ctx.strokeStyle = '#1f2a22';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(40, 105); ctx.lineTo(40, 105);
+    ctx.setLineDash([1,3]);
+    ctx.moveTo(40,110); ctx.lineTo(W-40,110); ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#7f2f22';
+    ctx.font = '700 84px "IBM Plex Mono", monospace';
+    ctx.fillText(opts.bigNumber, W/2, 300);
+
+    if(opts.bigNumberSuffix){
+      ctx.font = '500 18px "Work Sans", sans-serif';
+      ctx.fillStyle = '#5c6b5f';
+      ctx.fillText(opts.bigNumberSuffix, W/2, 335);
+    }
+
+    ctx.font = '400 15px "Work Sans", sans-serif';
+    ctx.fillStyle = '#5c6b5f';
+    ctx.fillText(opts.subLabel, W/2, 385);
+
+    ctx.font = '500 17px "Work Sans", sans-serif';
+    ctx.fillStyle = '#1f2a22';
+    wrapTextCentered(ctx, opts.remarkText, W/2, 440, W-170, 25);
+
+    ctx.strokeStyle = '#1f2a22';
+    ctx.setLineDash([1,3]);
+    ctx.beginPath(); ctx.moveTo(40,700); ctx.lineTo(W-40,700); ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#1f2a22';
+    ctx.font = '500 14px "IBM Plex Mono", monospace';
+    ctx.fillText('Check yours free at', W/2, 745);
+    ctx.font = '700 20px "IBM Plex Mono", monospace';
+    ctx.fillText('quickcalc', W/2, 775);
+
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(()=>callback(canvas));
+    } else {
+      callback(canvas);
+    }
+  }
+
+  function saveOrShareCanvas(canvas, filename){
+    canvas.toBlob(function(blob){
+      if(!blob) return;
+      const file = new File([blob], filename, {type:'image/png'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file], title:'My result'}).catch(()=>{
+          triggerDownload(blob, filename);
+        });
+      } else {
+        triggerDownload(blob, filename);
+      }
+    }, 'image/png');
+  }
+
+  function triggerDownload(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function shareAgeImage(){
+    const years = document.getElementById('age-figure').textContent.split(' ')[0].trim();
+    buildLedgerImage({
+      heading: 'MY AGE',
+      bigNumber: years,
+      bigNumberSuffix: 'years old',
+      subLabel: document.getElementById('age-label').textContent,
+      remarkText: document.getElementById('age-days').textContent + ' total days lived · ' + document.getElementById('age-nextbday').textContent + ' days to next birthday'
+    }, function(canvas){
+      saveOrShareCanvas(canvas, 'my-age.png');
+    });
+  }
+
+  function shareBmiImage(){
+    const bmi = document.getElementById('bmi-figure').textContent.trim();
+    buildLedgerImage({
+      heading: 'MY BMI',
+      bigNumber: bmi,
+      bigNumberSuffix: '',
+      subLabel: 'Body Mass Index',
+      remarkText: bmiCategoryGlobal + ' range'
+    }, function(canvas){
+      saveOrShareCanvas(canvas, 'my-bmi.png');
+    });
+  }
+
+  function sharePctImage(){
+    const val = document.getElementById('pct-figure').textContent.trim();
+    buildLedgerImage({
+      heading: 'PERCENTAGE RESULT',
+      bigNumber: val,
+      bigNumberSuffix: '',
+      subLabel: document.getElementById('pct-label-out').textContent,
+      remarkText: 'Calculated instantly, no signup needed'
+    }, function(canvas){
+      saveOrShareCanvas(canvas, 'my-percentage.png');
+    });
+  }
+
+  function shareWordsImage(){
+    const words = document.getElementById('words-figure').textContent.split(' ')[0].trim();
+    buildLedgerImage({
+      heading: 'WORD COUNT',
+      bigNumber: words,
+      bigNumberSuffix: 'words',
+      subLabel: document.getElementById('words-chars').textContent + ' characters',
+      remarkText: document.getElementById('words-sentences').textContent + ' sentences · ' + document.getElementById('words-readtime').textContent + ' read time'
+    }, function(canvas){
+      saveOrShareCanvas(canvas, 'my-word-count.png');
+    });
+  }
+</script>
+
+</body>
+</html>
