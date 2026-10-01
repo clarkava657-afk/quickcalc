@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy | QuickCalc</title>
+<meta name="description" content="How QuickCalc handles your information.">
+<style>
+  body{margin:0;background:#fbfaf7;color:#1d2320;font:17px/1.7 Georgia,serif}
+  main{max-width:38rem;margin:0 auto;padding:2rem 1.25rem 4rem}
+  h1{font-size:2rem;margin:0 0 .25rem}
+  h2{font-size:1.15rem;margin:2rem 0 .4rem;padding-top:1rem;border-top:1px solid #dfe3dc}
+  a{color:#1a5c4a}
+</style>
+</head>
+<body>
+<main>
+  <nav><a href="./">Back to QuickCalc</a></nav>
+  <h1>Privacy Policy</h1>
+  <p>Last updated: September 28, 2026</p>
+  <p>QuickCalc offers free calculators for age, BMI, percentage, and word count. This page explains what information the site does and does not collect.</p>
+  <h2>What you type into the calculators</h2>
+  <p>The numbers and text you enter are used only to show you a result. They are worked out in your browser and are not sent to us or stored by us.</p>
+  <h2>Information collected automatically</h2>
+  <p>Like most websites, the site is hosted on GitHub Pages, which may log basic technical data such as IP address, browser type, and pages visited.</p>
+  <h2>Cookies and advertising</h2>
+  <p>This site may show ads through Google AdSense. Google and its partners may use cookies to show ads based on your visits to this and other websites. You can opt out of personalized ads at <a href="https://www.google.com/settings/ads">google
