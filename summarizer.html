@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subject Summarizer - QuickCalc</title>
+<style>
+body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 16px; line-height: 1.5; }
+textarea { width: 100%; box-sizing: border-box; padding: 10px; font-size: 16px; }
+button { margin-top: 10px; padding: 12px 20px; font-size: 16px; background: #1a73e8; color: #fff; border: 0; border-radius: 6px; }
+#result { margin-top: 16px; white-space: pre-wrap; background: #f4f6f8; padding: 12px; border-radius: 6px; display: none; }
+</style>
+</head>
+<body>
+<h1>Subject Summarizer</h1>
+<p>Type a school subject or topic and get a simple summary.</p>
+<textarea id="topic" rows="3" placeholder="e.g. Photosynthesis, Nigerian independence, Quadratic equations"></textarea>
+<button id="go">Summarize</button>
+<div id="result"></div>
+<script>
+var WORKER_URL = "https://quickcalc-summarizer.clarkava657.workers.dev";
+document.getElementById("go").onclick = async function () {
+  var topic = document.getElementById("topic").value.trim();
+  var box = document.getElementById("result");
+  if (!topic) return;
+  box.style.display = "block";
+  box.textContent = "Thinking...";
+  try {
+    var r = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic: topic })
+    });
+    var d = await r.json();
+    box.textContent = d.summary || d.error || "No answer, try again.";
+  } catch (e) {
+    box.textContent = "Connection problem. Please try again.";
+  }
+};
+</script>
+</body>
+  </html>
